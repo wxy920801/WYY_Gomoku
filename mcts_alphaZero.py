@@ -188,7 +188,10 @@ class MCTSPlayer(object):
         move_probs = np.zeros(board.width*board.height)
         if len(sensible_moves) > 0:
             acts, probs = self.mcts.get_move_probs(board, temp)
+            #将不符合条件的一部分给删去，就是将probs设为较低,那么已知的是哪些子
+            #三三禁手
             move_probs[list(acts)] = probs
+
             if self._is_selfplay:
                 # add Dirichlet Noise for exploration (needed for
                 # self-play training)
@@ -206,6 +209,14 @@ class MCTSPlayer(object):
                 self.mcts.update_with_move(-1)
 #                location = board.move_to_location(move)
 #                print("AI move: %d,%d\n" % (location[0], location[1]))
+
+            print(move,board.get_current_player())
+            current_player_state = {}
+            if len(board.states.values() == board.get_current_player) >= 6:
+                current_player_state = [k for k,v in board.states.items() if v == board.get_current_player]
+                print(current_player_state)
+                if current_player_state 
+
 
             if return_prob:
                 return move, move_probs
