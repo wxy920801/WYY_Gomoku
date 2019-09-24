@@ -191,33 +191,122 @@ class MCTSPlayer(object):
             #将不符合条件的一部分给删去，就是将probs设为较低,那么已知的是哪些子
             #三三禁手
             move_probs[list(acts)] = probs
+            do_flag = 1
+            while do_flag:
+                if self._is_selfplay:
+                    # add Dirichlet Noise for exploration (needed for
+                    # self-play training)
+                    move = np.random.choice(
+                        acts,
+                        p=0.75*probs + 0.25*np.random.dirichlet(0.3*np.ones(len(probs)))
+                    )
+                    # update the root node and reuse the search tree
+                    self.mcts.update_with_move(move)
+                else:
+                    # with the default temp=1e-3, it is almost equivalent
+                    # to choosing the move with the highest prob
+                    move = np.random.choice(acts, p=probs)
+                    # reset the root node
+                    self.mcts.update_with_move(-1)
+#                   location = board.move_to_location(move)
+#                   print("AI move: %d,%d\n" % (location[0], location[1]))
 
-            if self._is_selfplay:
-                # add Dirichlet Noise for exploration (needed for
-                # self-play training)
-                move = np.random.choice(
-                    acts,
-                    p=0.75*probs + 0.25*np.random.dirichlet(0.3*np.ones(len(probs)))
-                )
-                # update the root node and reuse the search tree
-                self.mcts.update_with_move(move)
-            else:
-                # with the default temp=1e-3, it is almost equivalent
-                # to choosing the move with the highest prob
-                move = np.random.choice(acts, p=probs)
-                # reset the root node
-                self.mcts.update_with_move(-1)
-#                location = board.move_to_location(move)
-#                print("AI move: %d,%d\n" % (location[0], location[1]))
+                print(move,board.get_current_player())
+                current_player_state = {}
+                another_player_state = {}
+                if len(board.states.values() == board.get_current_player) >= 5:
+                    current_player_state = [k for k,v in board.states.items() if v == board.get_current_player]
+                    another_player_state = [k for k,v in board.states.items() if v != board.get_current_player]
+                    print(current_player_state)
+                    current_player_state = [move,current_player_state]
+                    # 三三禁手规则
+                    three_three_ban = 0
+                    for item_value in current_player_state:
+                        if ((item_value - 1) in current_player_state) and ((item_value + 1) in current_player_state) 
+                        and ((item_value -2) not in another_player_state) and ((item_value + 2) not in another_player_state):
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 15) in current_player_state) and ((item_value + 15) in current_player_state) 
+                        and ((item_value -30) not in another_player_state) and ((item_value + 30) not in another_player_state):
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 16) in current_player_state) and ((item_value + 16) in current_player_state)
+                        and ((item_value-32) not in another_player_state) and ((item_value + 32) not in another_player_state):
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 14) in current_player_state) and ((item_value + 14) in current_player_state)
+                        and ((item_value - 28) not in another_player_state) and ((item_value + 28) not in another_player_state):
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 14) in current_player_state) and ((item_value + 28) in current_player_state)
+                        and ((item_value -28) not in another_player_state) and ((item_value + 14) not in another_player_state) 
+                        and ((item_value + 42) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 28) in current_player_state) and ((item_value + 14) in current_player_state)
+                        and ((item_value -14) not in another_player_state) and ((item_value + 28) not in another_player_state) 
+                        and ((item_value - 42) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 16) in current_player_state) and ((item_value + 32) in current_player_state)
+                        and ((item_value -32) not in another_player_state) and ((item_value + 16) not in another_player_state) 
+                        and ((item_value + 48) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 32) in current_player_state) and ((item_value + 16) in current_player_state)
+                        and ((item_value -32) not in another_player_state) and ((item_value + 16) not in another_player_state) 
+                        and ((item_value - 48) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 1) in current_player_state) and ((item_value + 2) in current_player_state)
+                        and ((item_value -2) not in another_player_state) and ((item_value + 1) not in another_player_state) 
+                        and ((item_value + 3) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 2) in current_player_state) and ((item_value + 1) in current_player_state)
+                        and ((item_value -1) not in another_player_state) and ((item_value + 2) not in another_player_state) 
+                        and ((item_value - 3) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 15) in current_player_state) and ((item_value + 30) in current_player_state)
+                        and ((item_value -30) not in another_player_state) and ((item_value + 15) not in another_player_state) 
+                        and ((item_value + 45) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
+                        if ((item_value - 30) in current_player_state) and ((item_value + 15) in current_player_state)
+                        and ((item_value -30) not in another_player_state) and ((item_value + 15) not in another_player_state) 
+                        and ((item_value - 45) not in another_player_state): 
+                            three_three_ban = three_three_ban + 1
 
-            print(move,board.get_current_player())
-            current_player_state = {}
-            if len(board.states.values() == board.get_current_player) >= 6:
-                current_player_state = [k for k,v in board.states.items() if v == board.get_current_player]
-                print(current_player_state)
-                if current_player_state 
+                    #四四禁手规则
+                    four_four_ban = 0
+                    for item_value in current_player_state:
+                        if ((item_value - 16) in current_player_state) and((item_value + 16) in current_player_state) and ((item_value + 32) in current_player_state)
+                        and ((item_value -32) not in another_player_state) and ((item_value + 48) not in another_player_state): 
+                            four_four_ban = four_four_ban + 1
+                        if ((item_value - 14) in current_player_state) and ((item_value + 14) in current_player_state)and ((item_value + 28) in current_player_state)
+                        and ((item_value -28) not in another_player_state)  and ((item_value + 42) not in another_player_state): 
+                            four_four_ban = four_four_ban + 1
+                        if ((item_value - 1) in current_player_state) and ((item_value + 1) in current_player_state) and ((item_value + 2) in current_player_state)
+                        and ((item_value -2) not in another_player_state) and ((item_value + 3) not in another_player_state): 
+                            four_four_ban = four_four_ban + 1
+                        if ((item_value - 15) in current_player_state) and ((item_value + 15) in current_player_state)and ((item_value + 30) in current_player_state)
+                        and ((item_value -30) not in another_player_state)  and ((item_value + 45) not in another_player_state): 
+                            four_four_ban = four_four_ban + 1
+                    
+                    # 长连禁手规则
+                    long_ban = 0
+                    for item_value in current_player_state:
+                        for x in [1,14,15,16]:
+                        if ((item_value + 2*x) in current_player_state) and ((item_value + 3*x) in current_player_state) and ((item_value + 4*x) in current_player_state) 
+                        and ((item_value + 5*x) in current_player_state):
+                            long_ban = long_ban + 1
+                        if ((item_value + x) in current_player_state) and ((item_value + 3*x) in current_player_state) and ((item_value + 4*x) in current_player_state) 
+                        and ((item_value + 5*x) in current_player_state):
+                            long_ban = long_ban + 1
+                        if ((item_value + 2*x) in current_player_state) and ((item_value + x) in current_player_state) and ((item_value + 4*x) in current_player_state) 
+                        and ((item_value + 5*x) in current_player_state):
+                            long_ban = long_ban + 1
+                        if ((item_value + 2*x) in current_player_state) and ((item_value + 3*x) in current_player_state) and ((item_value + x) in current_player_state) 
+                        and ((item_value + 5*x) in current_player_state):
+                            long_ban = long_ban + 1
 
+                        
 
+                    if three_three_ban + four_four_ban + long_ban < 2:
+                        do_flag = 0
+
+                else:
+                    do_flag = 0
             if return_prob:
                 return move, move_probs
             else:
