@@ -84,6 +84,13 @@ class Board(object):
         )
         self.last_move = move
 
+    def do_five_move(self,move):
+        self.states[move[0]] = self.current_player
+        self.states[move[1]] = self.current_player
+        
+
+
+
     def has_a_winner(self):
         width = self.width
         height = self.height
@@ -180,21 +187,50 @@ class Game(object):
             print("当前棋盘得分:",board_state_value)
 
             #move = player_in_turn.get_action(self.board)
-            if (len(self.board.states) == 3) and ((board_state_value) < -0.3) and (change_flag == 1) and (current_player == 2):
+            if (len(self.board.states) == 3) and ((board_state_value) < -0.3) and (change_flag_three == 1) and (current_player == 2):
                 print("do 三手交换!!!")
                 change_flag_three = 0
                 players = {p1 : player2 , p2 : player1}
                 continue
-            if ((current_player == 1)) and (len(self.board.states) == 3)  and (change_flag == 1) and (player_in_turn.get_action(self.board) == -2):
+
+            if ((current_player == 1)) and (len(self.board.states) == 3)  and (change_flag_three == 1) and (player_in_turn.get_action(self.board) == -2):
                 print("human do 三手交换!!!")
                 change_flag_three = 0
                 players = {p1 : player2 , p2 : player1}   
                 continue
+
             if ((((current_player) == 1) and (change_flag_three == 1)) or (((current_player) == 2) and (change_flag_three == 0)) ) and (len(self.board.states) == 4):
                 move_5_1 = player_in_turn.get_five_action(self.board) 
+                self.board.do_five_move(move_5_1)
+                if is_shown:
+                    self.graphic(self.board, player1.player, player2.player)
                 another_player = players[2 - current_player]
-                move_5_2 = another_player.move_five_action(self.board)
-            
+                move_5_2 = another_player.move_five_action(self.board,move_5_1)
+                self.board.states.pop(move_5_1[0])
+                self.board.states.pop(move_5_1[1])
+                self.board.do_move(move_5_2)
+                if is_shown:
+                    self.graphic(self.board, player1.player, player2.player)
+                continue
+
+            if ((((current_player) == 2) and (change_flag_three == 1)) or (((current_player) == 1) and (change_flag_three == 0)) ) and (len(self.board.states) == 4):
+                move_5_1 = player_in_turn.get_five_action(self.board)
+                print(move_5_1) 
+                self.board.do_five_move(move_5_1)
+                if is_shown:
+                    self.graphic(self.board, player1.player, player2.player)
+                print(self.board.states)
+                another_player = players[2 - current_player]
+                print(another_player)
+                move_5_2 = another_player.move_five_action(self.board,best_policy,move_5_1)
+                del self.board.states[move_5_1[0]]
+                del self.board.states[move_5_1[1]]
+                self.board.do_move(move_5_2)
+                if is_shown:
+                    self.graphic(self.board, player1.player, player2.player)
+                continue
+
+
             player_in_turn = players[current_player]
             move = player_in_turn.get_action(self.board)
             self.board.do_move(move)

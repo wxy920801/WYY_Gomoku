@@ -44,6 +44,38 @@ class Human(object):
             move = self.get_action(board)
         return move
 
+    def get_five_action(self,board):
+        move_5_1 = []
+        try:
+            location = input("Your move in 5th: ")
+            if isinstance(location, str):  # for python3
+                location = location.split(";")
+                for item_location in location:
+                    item_location = [int(n, 10) for n in item_location.split(",")]
+                    move = board.location_to_move(item_location)
+                    move_5_1.append(move)
+        except Exception as e:
+            move_5_1 = [-1]
+        if move_5_1[0] == -1 or ((move_5_1[0] not in board.availables) or (move_5_1[1] not in board.availables)):
+            print("invalid move")
+            move_5_1 = self.get_five_action(board)
+        return move_5_1
+
+    def move_five_action(self,board,move_5_1):
+        move_5_1_0 = board.move_to_location(move_5_1[0])
+        move_5_1_1 = board.move_to_location(move_5_1[1])
+        try:
+            location = input("choose which to delete: from {},{}",move_5_1_0,move_5_1_1)
+            location = [int(n, 10) for n in location.split(",")]
+            move = board.location_to_move(location)
+        except Exception as e:
+            move = -1
+        if (move == -1) or ((move != move_5_1[0]) and (move != move_5_1[1])):
+            print("invalid move, please choose from ")
+            move = self.move_five_action(board,move_5_1)
+        return move
+
+
     def __str__(self):
         return "Human {}".format(self.player)
 
