@@ -30,6 +30,7 @@ class Board(object):
         self.availables = list(range(self.width * self.height))
         self.states = {}
         self.last_move = -1
+        self.start_player = start_player
 
     def move_to_location(self, move):
         """
@@ -159,7 +160,7 @@ class Game(object):
                     print('_'.center(8), end='')
             print('\r\n\r\n')
 
-    def start_play(self, player1, player2, start_player=0, is_shown=1):
+    def start_play(self, player1, player2, best_policy , start_player=0, is_shown=1):
         """start a game between two players"""
         if start_player not in (0, 1):
             raise Exception('start_player should be either 0 (player1 first) '
@@ -169,10 +170,31 @@ class Game(object):
         player1.set_player_ind(p1)
         player2.set_player_ind(p2)
         players = {p1: player1, p2: player2}
+        change_flag_three = 1
         if is_shown:
             self.graphic(self.board, player1.player, player2.player)
         while True:
             current_player = self.board.get_current_player()
+            player_in_turn = players[current_player]
+            _,board_state_value = best_policy.policy_value_fn(self.board)
+            print("当前棋盘得分:",board_state_value)
+
+            #move = player_in_turn.get_action(self.board)
+            if (len(self.board.states) == 3) and ((board_state_value) < -0.3) and (change_flag == 1) and (current_player == 2):
+                print("do 三手交换!!!")
+                change_flag_three = 0
+                players = {p1 : player2 , p2 : player1}
+                continue
+            if ((current_player == 1)) and (len(self.board.states) == 3)  and (change_flag == 1) and (player_in_turn.get_action(self.board) == -2):
+                print("human do 三手交换!!!")
+                change_flag_three = 0
+                players = {p1 : player2 , p2 : player1}   
+                continue
+            if ((((current_player) == 1) and (change_flag_three == 1)) or (((current_player) == 2) and (change_flag_three == 0)) ) and (len(self.board.states) == 4):
+                move_5_1 = player_in_turn.get_five_action(self.board) 
+                another_player = players[2 - current_player]
+                move_5_2 = another_player.move_five_action(self.board)
+            
             player_in_turn = players[current_player]
             move = player_in_turn.get_action(self.board)
             self.board.do_move(move)

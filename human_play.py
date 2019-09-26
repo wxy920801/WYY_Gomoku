@@ -11,8 +11,8 @@ import pickle
 from game import Board, Game
 from mcts_pure import MCTSPlayer as MCTS_Pure
 from mcts_alphaZero import MCTSPlayer
-from policy_value_net_numpy import PolicyValueNetNumpy
-# from policy_value_net import PolicyValueNet  # Theano and Lasagne
+#from policy_value_net_numpy import PolicyValueNetNumpy
+from policy_value_net import PolicyValueNet  # Theano and Lasagne
 # from policy_value_net_pytorch import PolicyValueNet  # Pytorch
 # from policy_value_net_tensorflow import PolicyValueNet # Tensorflow
 # from policy_value_net_keras import PolicyValueNet  # Keras
@@ -32,6 +32,8 @@ class Human(object):
     def get_action(self, board):
         try:
             location = input("Your move: ")
+            if location == 3333 :
+                return -2
             if isinstance(location, str):  # for python3
                 location = [int(n, 10) for n in location.split(",")]
             move = board.location_to_move(location)
@@ -62,11 +64,11 @@ def run():
 
         # load the provided model (trained in Theano/Lasagne) into a MCTS player written in pure numpy
         try:
-            policy_param = pickle.load(open(model_file, 'rb'))
+            policy_param = pickle.load(open("{}".format(model_file), 'rb'))
         except:
-            policy_param = pickle.load(open(model_file, 'rb'),
+            policy_param = pickle.load(open("{}".format(model_file), 'rb'),
                                        encoding='bytes')  # To support python3
-        best_policy = PolicyValueNetNumpy(width, height, policy_param)
+        best_policy = PolicyValueNet(width, height, model_file)
         mcts_player = MCTSPlayer(best_policy.policy_value_fn,
                                  c_puct=5,
                                  n_playout=400)  # set larger n_playout for better performance
@@ -78,7 +80,7 @@ def run():
         human = Human()
 
         # set start_player=0 for human first
-        game.start_play(human, mcts_player, start_player=1, is_shown=1)
+        game.start_play(human, mcts_player,best_policy, start_player=0, is_shown=1)
     except KeyboardInterrupt:
         print('\n\rquit')
 

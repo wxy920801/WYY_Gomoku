@@ -182,14 +182,12 @@ class MCTSPlayer(object):
     def reset_player(self):
         self.mcts.update_with_move(-1)
 
-    def get_action(self, board, temp=1e-3, return_prob=0):
+    def get_action(self, board,temp=1e-3, return_prob=0):
         sensible_moves = board.availables
         # the pi vector returned by MCTS as in the alphaGo Zero paper
         move_probs = np.zeros(board.width*board.height)
         if len(sensible_moves) > 0:
-            acts, probs = self.mcts.get_move_probs(board, temp)
-            
-            
+            acts, probs = self.mcts.get_move_probs(board, temp)       
             move_probs[list(acts)] = probs
             do_flag = 1
             while do_flag:
@@ -217,7 +215,7 @@ class MCTSPlayer(object):
                 
                 current_player_state = [k for k,v in board.states.items() if v == board.get_current_player]
                 another_player_state = [k for k,v in board.states.items() if v != board.get_current_player]
-                if len(current_player_state) >= 5:
+                if (len(current_player_state)>= 4) and (board.get_current_player() == (board.start_player + 1)) :
                     
                     #print(current_player_state)
                     current_player_state = [move,current_player_state]
@@ -288,28 +286,19 @@ class MCTSPlayer(object):
                         and ((item_value -30) not in another_player_state)  and ((item_value + 45) not in another_player_state): 
                             four_four_ban = four_four_ban + 1
                     
-                    # 长连禁手规则
+                    # 长连禁手规则理解错了改成六个及以上,已改 
                     long_ban = 0
                     for item_value in current_player_state:
                         for x in [1,14,15,16]:
                             if ((item_value + 2*x) in current_player_state) and ((item_value + 3*x) in current_player_state) and ((item_value + 4*x) in current_player_state) \
-                            and ((item_value + 5*x) in current_player_state):
-                                long_ban = long_ban + 1
-                            if ((item_value + x) in current_player_state) and ((item_value + 3*x) in current_player_state) and ((item_value + 4*x) in current_player_state) \
-                            and ((item_value + 5*x) in current_player_state):
-                                long_ban = long_ban + 1
-                            if ((item_value + 2*x) in current_player_state) and ((item_value + x) in current_player_state) and ((item_value + 4*x) in current_player_state) \
-                            and ((item_value + 5*x) in current_player_state):
-                                long_ban = long_ban + 1
-                            if ((item_value + 2*x) in current_player_state) and ((item_value + 3*x) in current_player_state) and ((item_value + x) in current_player_state) \
-                            and ((item_value + 5*x) in current_player_state):
+                            and ((item_value + 5*x) in current_player_state) and ((item_value + x) in current_player_state):
                                 long_ban = long_ban + 1
 
-                        
+                     #【todo】交换次序的问题，判断前后手的问题,已做   
 
                     if three_three_ban + four_four_ban + long_ban < 2:
                         do_flag = 0
-
+                        print("appear ban")
                 else:
                     do_flag = 0
             if return_prob:
