@@ -189,7 +189,7 @@ class MCTSPlayer(object):
         move_probs[list(acts)] = probs
         move_1 = np.random.choice(acts, p=probs)
         move_2 = np.random.choice(acts)
-        print(probs,probs2)
+        self.mcts.update_with_move(-1)
         return (move_1,move_2)
 
     def move_five_action(self,board,best_policy,move_5_1):
@@ -206,6 +206,7 @@ class MCTSPlayer(object):
 
     def get_action(self, board,temp=1e-3, return_prob=0):
         sensible_moves = board.availables
+        print(board.availables)
         # the pi vector returned by MCTS as in the alphaGo Zero paper
         move_probs = np.zeros(board.width*board.height)
         if len(sensible_moves) > 0:

@@ -204,28 +204,31 @@ class Game(object):
                 self.board.do_five_move(move_5_1)
                 if is_shown:
                     self.graphic(self.board, player1.player, player2.player)
-                another_player = players[2 - current_player]
-                move_5_2 = another_player.move_five_action(self.board,move_5_1)
-                self.board.states.pop(move_5_1[0])
-                self.board.states.pop(move_5_1[1])
+                another_player = players[3 - current_player]
+                move_5_2 = another_player.move_five_action(self.board,best_policy,move_5_1)
+                self.board.states[move_5_1[0]] = 0
+                self.board.states[move_5_1[1]] = 0
                 self.board.do_move(move_5_2)
+                self.current_player = current_player
                 if is_shown:
                     self.graphic(self.board, player1.player, player2.player)
                 continue
 
             if ((((current_player) == 2) and (change_flag_three == 1)) or (((current_player) == 1) and (change_flag_three == 0)) ) and (len(self.board.states) == 4):
                 move_5_1 = player_in_turn.get_five_action(self.board)
-                print(move_5_1) 
+                print("player_in_turn",player_in_turn)
                 self.board.do_five_move(move_5_1)
                 if is_shown:
                     self.graphic(self.board, player1.player, player2.player)
-                print(self.board.states)
-                another_player = players[2 - current_player]
-                print(another_player)
-                move_5_2 = another_player.move_five_action(self.board,best_policy,move_5_1)
-                del self.board.states[move_5_1[0]]
-                del self.board.states[move_5_1[1]]
+                print("current_player",current_player)
+                another_player = players[3 - current_player]
+                print("another_player",another_player)
+                move_5_2 = another_player.move_five_action(self.board,move_5_1)
+                self.board.states[move_5_1[0]] = 0
+                self.board.states[move_5_1[1]] = 0
+                
                 self.board.do_move(move_5_2)
+                self.current_player = current_player
                 if is_shown:
                     self.graphic(self.board, player1.player, player2.player)
                 continue
@@ -233,6 +236,8 @@ class Game(object):
 
             player_in_turn = players[current_player]
             move = player_in_turn.get_action(self.board)
+            print("self.board.availables",self.board.availables)
+            print("move",move)
             self.board.do_move(move)
             if is_shown:
                 self.graphic(self.board, player1.player, player2.player)
