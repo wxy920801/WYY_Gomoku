@@ -61,7 +61,7 @@ class Human(object):
         move_5_1_1 = board.move_to_location(move_5_1[1])
         print("please delete from:",move_5_1_0,move_5_1_1,"as",move_5_1[0],"as",move_5_1[1])
         try:
-            move = input("choose which to delete:")
+            move = input("choose which to save:")
             print("move",move)
         except Exception as e:
             move = -1
