@@ -31,12 +31,15 @@ class Human(object):
 
     def get_action(self, board):
         try:
-            location = input("Your move: ")
+            location = input("Your move (in 4th need to choose whether change,change put 3333): ")
+            
             if location == 3333 :
                 return -2
             if isinstance(location, str):  # for python3
                 location = [int(n, 10) for n in location.split(",")]
+            
             move = board.location_to_move(location)
+            
         except Exception as e:
             move = -1
         if move == -1 or move not in board.availables:

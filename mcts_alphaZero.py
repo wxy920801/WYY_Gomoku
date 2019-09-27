@@ -185,7 +185,6 @@ class MCTSPlayer(object):
     def get_five_action(self,board,temp=1e-3, return_prob=0):
         move_probs  = np.zeros(board.width*board.height)
         acts,probs = self.mcts.get_move_probs(board,temp)
-        acts,probs2 = self.mcts.get_move_probs(board,temp)
         move_probs[list(acts)] = probs
         move_1 = np.random.choice(acts, p=probs)
         move_2 = np.random.choice(acts)
